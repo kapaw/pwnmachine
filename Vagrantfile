@@ -3,16 +3,18 @@
 
 
 $install = <<EOF
+export DEBIAN_FRONTEND=noninteractive
 #Install packages
-sudo apt-get -y update
-sudo apt-get -y upgrade
-sudo apt-get -y install git python-pip python-dev build-essential \
+sudo -E apt-get -y update
+sudo -E apt-get -y upgrade
+sudo -E apt-get -y install git python-pip python-dev build-essential \
     python-software-properties gdb curl vim exuberant-ctags pyflakes \
     cmake clang-3.5 software-properties-common
 
 #Install pwntools + dependencies
 git clone https://github.com/Gallopsled/pwntools.git
 cd pwntools
+sudo pip2 install -r requirements.txt
 sudo python setup.py install
 cd /home/vagrant
 
