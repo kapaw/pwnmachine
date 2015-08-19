@@ -1,8 +1,10 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-
 $install = <<EOF
+MY_NAME=vagrant
+MY_HOME=/home/${MY_NAME}
+
 export DEBIAN_FRONTEND=noninteractive
 #Install packages
 sudo -E apt-get -y update
@@ -11,12 +13,22 @@ sudo -E apt-get -y install git python-pip python-dev build-essential \
     python-software-properties gdb curl vim exuberant-ctags pyflakes \
     cmake clang-3.5 software-properties-common
 
+mkdir .repositories
+
+function git_clone(){
+    base=$(basename "${1}" | sed 's/\.git//g')
+    git clone "${1}" ${MY_HOME}/.repositories/"${base}"
+    if test -n "${2}"; then
+        ln -s ${MY_HOME}/.repositories/"${base}" "${2}"/"${base}"
+    fi
+}
+
 #Install pwntools + dependencies
-git clone https://github.com/Gallopsled/pwntools.git
+git_clone https://github.com/Gallopsled/pwntools.git ${MY_HOME}
 cd pwntools
 sudo pip2 install -r requirements.txt
 sudo python setup.py install
-cd /home/vagrant
+cd ${MY_HOME}
 
 #Install many binutils
 sudo apt-add-repository --yes ppa:pwntools/binutils
@@ -24,36 +36,38 @@ sudo apt-get update
 sudo apt-get install binutils-{arm,i386,mips}-linux-gnu
 
 #Install voltron (https://github.com/snare/voltron)
-git clone https://github.com/snare/voltron.git
+git_clone https://github.com/snare/voltron.git ${MY_HOME}
 cat > .gdbinit <<GDB_EOF
 set follow-fork-mode child
 set disassembly-flavor intel
 
-source /home/vagrant/voltron/dbgentry.py
+source ${MY_HOME}/voltron/dbgentry.py
 voltron init
 GDB_EOF
 cd voltron
 sudo python setup.py install
-cd /home/vagrant
+cd ${MY_HOME}
 
 #Configure vim
 mkdir -p .vim/autoload .vim/bundle
-ctags-exuberant --fields=+S --sort=yes -f /home/vagrant/.vim/systags   -R /usr/include 2>/dev/null
+ctags-exuberant --fields=+S --sort=yes -f ${MY_HOME}/.vim/systags   -R /usr/include 2>/dev/null
 curl -LSso .vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
-git clone https://github.com/SirVer/ultisnips.git .vim/bundle/ultisnips
-git clone git://github.com/honza/vim-snippets.git .vim/bundle/vim-snippets
-git clone https://github.com/tpope/vim-fugitive.git .vim/bundle/vim-fugitive
-git clone https://github.com/kevinw/pyflakes-vim.git .vim/bundle/pyflakes-vim
-git clone https://github.com/scrooloose/syntastic.git .vim/bundle/syntastic
-git clone https://github.com/Valloric/YouCompleteMe.git .vim/bundle/YouCompleteMe
-git clone https://github.com/bling/vim-airline.git .vim/bundle/vim-airline
-git clone https://github.com/kien/ctrlp.vim.git .vim/bundle/ctrlp.vim
-git clone https://github.com/ervandew/supertab.git .vim/bundle/supertab.vim
+git_clone https://github.com/SirVer/ultisnips.git ${MY_HOME}/.vim/bundle
+git_clone git://github.com/honza/vim-snippets.git ${MY_HOME}/.vim/bundle
+git_clone https://github.com/tpope/vim-fugitive.git ${MY_HOME}/.vim/bundle
+git_clone https://github.com/kevinw/pyflakes-vim.git ${MY_HOME}/.vim/bundle
+git_clone https://github.com/scrooloose/syntastic.git ${MY_HOME}/.vim/bundle
+git_clone https://github.com/Valloric/YouCompleteMe.git ${MY_HOME}/.vim/bundle
+git_clone https://github.com/bling/vim-airline.git ${MY_HOME}/.vim/bundle
+git_clone https://github.com/kien/ctrlp.vim.git ${MY_HOME}/.vim/bundle
+git_clone https://github.com/ervandew/supertab.git ${MY_HOME}/.vim/bundle
+git_clone https://github.com/juneedahamed/svnj.vim.git ${MY_HOME}/.vim/bundle
+git_clone https://github.com/bruno-/vim-man.git ${MY_HOME}/.vim/bundle
 
 cd .vim/bundle/YouCompleteMe
 git submodule update --init --recursive
 ./install.sh --clang-completer
-cd /home/vagrant
+cd ${MY_HOME}
 
 
 cat > .vim/vimrc <<VIM_EOF
@@ -97,7 +111,7 @@ let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 VIM_EOF
 ln -s .vim/vimrc .vimrc
-sudo chown -R vagrant.vagrant /home/vagrant
+sudo chown -R ${MY_NAME}.${MY_NAME} ${MY_HOME}
 
 
 EOF
