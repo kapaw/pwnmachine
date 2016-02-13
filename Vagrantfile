@@ -24,6 +24,8 @@ sudo -E apt-get -y install git python-pip python-dev build-essential    \
     autoconf postgresql nasm pgadmin3 zlib1g-dev libxml2-dev            \
     libxslt1-dev ruby2.2-dev screen
 sudo update-alternatives --set ruby /usr/bin/ruby2.2
+
+# Init .repositories
 mkdir .repositories
 function git_clone(){
     base=$(basename "${1}" | sed 's/\.git//g')
@@ -46,6 +48,9 @@ HOME=$MY_HOME USER=$MY_NAME bash .repositories/WorkstationSetup/vim.sh
 # Install pwntools + dependencies
 git_clone https://github.com/Gallopsled/pwntools.git ${MY_HOME}
 cd pwntools
+sudo sed -i 's/kernel.yama.ptrace_scope = 1/kernel.yama.ptrace_scope = 0/' /etc/sysctl.d/10-ptrace.conf
+sudo service procps restart
+sudo sed -i "s/\['splitw'\]/\['splitw', '-h'\]/" pwnlib/util/misc.py
 sudo pip2 install -r requirements.txt
 sudo python setup.py install
 cd ${MY_HOME}
@@ -55,14 +60,19 @@ sudo apt-add-repository --yes ppa:pwntools/binutils
 sudo apt-get update
 sudo apt-get install binutils-{arm,i386,mips}-linux-gnu
 
+# Enable core dumps
 ulimit -c 100000
 echo 'vagrant     soft      core      unlimited' | sudo tee /etc/security/limits.conf
 
-git_clone https://github.com/zachriggle/peda.git
+# Create .gdbinit
 echo 'set follow-fork-mode child'          >> /home/vagrant/.gdbinit
 echo 'set disassembly-flavor intel'        >> /home/vagrant/.gdbinit
 echo 'set auto-load safe-path /'           >> /home/vagrant/.gdbinit
-echo 'source ~/.repositories/peda/peda.py' >> /home/vagrant/.gdbinit
+echo 'set disable-randomization off'       >> /home/vagrant/.gdbinit
+
+# Install peda
+git_clone https://github.com/zachriggle/peda.git
+echo '#source ~/.repositories/peda/peda.py' >> /home/vagrant/.gdbinit
 
 # Install Metasploit
 sudo gem2.2 install bundler
@@ -71,29 +81,22 @@ cd $HOME/.repositories/metasploit-framework
 bundle install
 sudo chmod -R a+r /var/lib/gems/2.2.0/gems
 echo 'export PATH=$PATH:$HOME/.repositories/metasploit-framework' >> $HOME/.bashrc
+
+# Update .bashrc
 echo 'export EDITOR=vim'                        >> $HOME/.bashrc
 echo 'function pwn(){'                          >> $HOME/.bashrc
-echo '    if [[ "${1}" == "" ]]; then'          >> $HOME/.bashrc
-echo '        fname=exploit.py'                 >> $HOME/.bashrc
-echo '    else'                                 >> $HOME/.bashrc
-echo '        fname="${1}"'                     >> $HOME/.bashrc
-echo '    fi'                                   >> $HOME/.bashrc
-echo '    if test -f "${fname}"; then'          >> $HOME/.bashrc
-echo '        echo "${fname} already exists."'  >> $HOME/.bashrc
-echo '        false'                            >> $HOME/.bashrc
-echo '    else'                                 >> $HOME/.bashrc
-echo '        touch "${fname}"'                 >> $HOME/.bashrc
-echo '        chmod +x "${fname}"'              >> $HOME/.bashrc
+echo '    fname="exploit.py"'                   >> $HOME/.bashrc
+echo '    if [ ! -f "$fname" ] ; then'          >> $HOME/.bashrc
 echo '        cat > "${fname}"<<EOF'            >> $HOME/.bashrc
 echo '#!/usr/bin/env python2'                   >> $HOME/.bashrc
-echo '# -*- coding: utf-8 -*-'                  >> $HOME/.bashrc
-echo ''                                         >> $HOME/.bashrc
 echo 'from pwn import *'                        >> $HOME/.bashrc
-echo ''                                         >> $HOME/.bashrc
 echo 'context(arch = "i386", os = "linux")'     >> $HOME/.bashrc
+echo ''                                         >> $HOME/.bashrc
+echo ''                                         >> $HOME/.bashrc
 echo 'EOF'                                      >> $HOME/.bashrc
-echo '        ${EDITOR} "${fname}" +'           >> $HOME/.bashrc
+echo '        chmod +x "${fname}"'              >> $HOME/.bashrc
 echo '    fi'                                   >> $HOME/.bashrc
+echo '        ${EDITOR} "${fname}" +'           >> $HOME/.bashrc
 echo '}'                                        >> $HOME/.bashrc
 
 # Install RunShellcode
@@ -101,7 +104,8 @@ git_clone https://github.com/RobertLarsen/RunShellcode.git
 cd $HOME/.repositories/RunShellcode
 sudo gcc -m32 -o /usr/bin/run_shellcode32 run_shellcode.c
 sudo gcc      -o /usr/bin/run_shellcode64 run_shellcode.c
-echo vagrant:vagrant | sudo chpasswd
+
+# Done
 POST=$(date +%s)
 echo "Installation took "$((POST-PRE))" seconds"
 EOF
@@ -109,7 +113,9 @@ EOF
 Vagrant.configure(2) do |config|
     config.vm.box = "puppetlabs/ubuntu-14.04-64-puppet"
     config.vm.provider "virtualbox" do |v|
-        v.memory = 1024
+        v.memory = 4096
+        v.cpus = 2
     end
     config.vm.provision "shell", inline: $install, privileged: false
+    config.vm.hostname = "pwnmachine"
 end
