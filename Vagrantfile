@@ -2,121 +2,171 @@
 # vi: set ft=ruby :
 
 $install = <<EOF
+PRE=$(date +%s)
 MY_NAME=vagrant
 MY_HOME=/home/${MY_NAME}
-
 export DEBIAN_FRONTEND=noninteractive
+#Use DK archives
+sudo perl -pi -e 's/us.archive/dk.archive/g' /etc/apt/sources.list
 #Install packages
+sudo -E apt-get -y update
+sudo apt-get install -y software-properties-common 
+sudo apt-add-repository -y ppa:brightbox/ruby-ng
 sudo -E apt-get -y update
 sudo -E apt-get -y upgrade
 sudo -E apt-get -y install git python-pip python-dev build-essential \
     python-software-properties gdb curl vim exuberant-ctags pyflakes \
-    cmake clang-3.5 software-properties-common
-
+    cmake clang-3.5 realpath asciidoc tmux source-highlight libpq5   \
+    gcc-multilib libc6-i386 libc6-dev-i386 inkscape qemu-user-static \
+    libreadline-dev libssl-dev libpq-dev nmap libreadline5 ruby2.2   \
+    libsqlite3-dev libpcap-dev openjdk-7-jre autoconf postgresql nasm\
+    pgadmin3 zlib1g-dev libxml2-dev libxslt1-dev ruby2.2-dev
+sudo update-alternatives --set ruby /usr/bin/ruby2.2
 mkdir .repositories
-
 function git_clone(){
     base=$(basename "${1}" | sed 's/\.git//g')
-    git clone "${1}" ${MY_HOME}/.repositories/"${base}"
+    if test -n "${3}"; then
+        git clone -b "${3}" "${1}" ${MY_HOME}/.repositories/"${base}"
+    else
+        git clone "${1}" ${MY_HOME}/.repositories/"${base}"
+    fi
     if test -n "${2}"; then
         ln -s ${MY_HOME}/.repositories/"${base}" "${2}"/"${base}"
     fi
 }
-
+#Get workstation setup
+git_clone https://github.com/RobertLarsen/WorkstationSetup.git
+#Install Vim
+HOME=$MY_HOME USER=$MY_NAME bash .repositories/WorkstationSetup/vim.sh
 #Install pwntools + dependencies
-git_clone https://github.com/Gallopsled/pwntools.git ${MY_HOME}
+git_clone https://github.com/Gallopsled/pwntools.git ${MY_HOME} i386-bindshell
 cd pwntools
 sudo pip2 install -r requirements.txt
 sudo python setup.py install
 cd ${MY_HOME}
-
 #Install many binutils
 sudo apt-add-repository --yes ppa:pwntools/binutils
 sudo apt-get update
 sudo apt-get install binutils-{arm,i386,mips}-linux-gnu
-
-#Install voltron (https://github.com/snare/voltron)
-git_clone https://github.com/snare/voltron.git ${MY_HOME}
-cat > .gdbinit <<GDB_EOF
-set follow-fork-mode child
-set disassembly-flavor intel
-
-source ${MY_HOME}/voltron/dbgentry.py
-voltron init
-GDB_EOF
-cd voltron
-sudo python setup.py install
-cd ${MY_HOME}
-
-#Configure vim
-mkdir -p .vim/autoload .vim/bundle
-ctags-exuberant --fields=+S --sort=yes -f ${MY_HOME}/.vim/systags   -R /usr/include 2>/dev/null
-curl -LSso .vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
-git_clone https://github.com/SirVer/ultisnips.git ${MY_HOME}/.vim/bundle
-git_clone git://github.com/honza/vim-snippets.git ${MY_HOME}/.vim/bundle
-git_clone https://github.com/tpope/vim-fugitive.git ${MY_HOME}/.vim/bundle
-git_clone https://github.com/kevinw/pyflakes-vim.git ${MY_HOME}/.vim/bundle
-git_clone https://github.com/scrooloose/syntastic.git ${MY_HOME}/.vim/bundle
-git_clone https://github.com/Valloric/YouCompleteMe.git ${MY_HOME}/.vim/bundle
-git_clone https://github.com/bling/vim-airline.git ${MY_HOME}/.vim/bundle
-git_clone https://github.com/kien/ctrlp.vim.git ${MY_HOME}/.vim/bundle
-git_clone https://github.com/ervandew/supertab.git ${MY_HOME}/.vim/bundle
-git_clone https://github.com/juneedahamed/svnj.vim.git ${MY_HOME}/.vim/bundle
-git_clone https://github.com/bruno-/vim-man.git ${MY_HOME}/.vim/bundle
-
-cd .vim/bundle/YouCompleteMe
-git submodule update --init --recursive
-./install.sh --clang-completer
-cd ${MY_HOME}
-
-
-cat > .vim/vimrc <<VIM_EOF
-execute pathogen#infect()
-
-syntax on
-colo elflord
-set hlsearch
-set incsearch
-set expandtab
-set tabstop=4
-set shiftwidth=4
-set ignorecase
-set smartcase
-set number
-set si
-filetype plugin indent on
-
-autocmd FileType java map <F8> :!ant<CR>
-autocmd FileType java map <F9> :!ant run<CR>
-autocmd FileType cpp set tags+=~/.vim/systags
-autocmd FileType cpp set omnifunc=ccomplete#Complete
-autocmd FileType c set tags+=~/.vim/systags
-autocmd FileType c set omnifunc=ccomplete#Complete
-autocmd FileType php set omnifunc=phpcomplete#CompletePHP
-autocmd FileType xml set omnifunc=xmlcomplete#CompleteXML
-autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
-map <F8> :make<CR>
-map <F9> :make<CR>
-
-"YCM
-let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
-let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
-let g:SuperTabDefaultCompletionType = '<C-n>'
-
-"UltiSnips
-let UltiSnipsEditSplit="vertical"
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
-
-VIM_EOF
-ln -s .vim/vimrc .vimrc
-sudo chown -R ${MY_NAME}.${MY_NAME} ${MY_HOME}
-
-
+cd /tmp
+wget https://asciidoc-slidy2-backend-plugin.googlecode.com/svn/downloads/slidy2-v1.0.4.zip
+asciidoc --backend install slidy2-v1.0.4.zip
+ln -s /vagrant/presentations/prosa.css /home/vagrant/.asciidoc/backends/slidy2
+cd /vagrant/presentations
+for file in */; do
+    cd ${file}
+    make
+    cd ..
+done
+ulimit -c 100000
+echo 'vagrant     soft      core      unlimited' | sudo tee /etc/security/limits.conf
+echo 'cd /vagrant/presentations/02-exploitation/assignments' >> /tmp/rc.local
+echo '#First kill running assignment processes' >> /tmp/rc.local
+echo 'for file in root/assignments/*; do' >> /tmp/rc.local
+echo '    base=$(basename ${file})' >> /tmp/rc.local
+echo '    killall ${base}' >> /tmp/rc.local
+echo 'done' >> /tmp/rc.local
+echo 'killall treebuilder' >> /tmp/rc.local
+echo '#First services have no canaries and no aslr' >> /tmp/rc.local
+echo 'setarch $(uname -m) -R chroot --userspec=1000:1000 root /assignments/integer_conversion --port 10001' >> /tmp/rc.local
+echo 'setarch $(uname -m) -R chroot --userspec=1000:1000 root /assignments/integer_overflow --port 10002' >> /tmp/rc.local
+echo '#Next services have no canaries but aslr' >> /tmp/rc.local
+echo 'chroot --userspec=1000:1000 root /assignments/integer_conversion --port 10003' >> /tmp/rc.local
+echo 'chroot --userspec=1000:1000 root /assignments/integer_overflow --port 10004' >> /tmp/rc.local
+echo '#Next services have canaries and aslr' >> /tmp/rc.local
+echo 'chroot --userspec=1000:1000 root /assignments/integer_conversion_canary --port 10005' >> /tmp/rc.local
+echo 'chroot --userspec=1000:1000 root /assignments/integer_overflow_canary --port 10006' >> /tmp/rc.local
+echo '#Last services have canaries, aslr and pie' >> /tmp/rc.local
+echo 'chroot --userspec=1000:1000 root /assignments/integer_conversion_canary_pie --port 10007' >> /tmp/rc.local
+echo 'chroot --userspec=1000:1000 root /assignments/integer_overflow_canary_pie --port 10008' >> /tmp/rc.local
+echo 'cd /vagrant/presentations/03-shellcoding/assignments' >> /tmp/rc.local
+echo 'cat flag | chroot --userspec=1000:1000 root /assignments/treebuilder' >> /tmp/rc.local
+echo 'echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope' >> /tmp/rc.local
+chmod 755 /tmp/rc.local
+sudo chown root.root /tmp/rc.local
+sudo rm -f /etc/rc.local
+sudo mv /tmp/rc.local /etc
+sudo bash /etc/rc.local
+git_clone https://github.com/zachriggle/peda.git
+echo 'set follow-fork-mode child'          >> /home/vagrant/.gdbinit
+echo 'set disassembly-flavor intel'        >> /home/vagrant/.gdbinit
+echo 'set auto-load safe-path /'           >> /home/vagrant/.gdbinit
+echo 'source ~/.repositories/peda/peda.py' >> /home/vagrant/.gdbinit
+echo 'export A=/vagrant/presentations/02-exploitation/assignments/root/assignments/integer_conversion' | sudo tee -a /etc/bash.bashrc
+echo 'export B=/vagrant/presentations/02-exploitation/assignments/root/assignments/integer_overflow' | sudo tee -a /etc/bash.bashrc
+echo 'export C=/vagrant/presentations/02-exploitation/assignments/root/assignments/integer_conversion_canary' | sudo tee -a /etc/bash.bashrc
+echo 'export D=/vagrant/presentations/02-exploitation/assignments/root/assignments/integer_overflow_canary' | sudo tee -a /etc/bash.bashrc
+echo 'export E=/vagrant/presentations/02-exploitation/assignments/root/assignments/integer_conversion_canary_pie' | sudo tee -a /etc/bash.bashrc
+echo 'export F=/vagrant/presentations/02-exploitation/assignments/root/assignments/integer_overflow_canary_pie' | sudo tee -a /etc/bash.bashrc
+#Install Metasploit
+sudo gem2.2 install bundler
+git_clone https://github.com/rapid7/metasploit-framework.git
+cd $HOME/.repositories/metasploit-framework
+bundle install
+sudo chmod -R a+r /var/lib/gems/2.2.0/gems
+echo 'export PATH=$PATH:$HOME/.repositories/metasploit-framework' >> $HOME/.bashrc
+echo 'export EDITOR=vim'                        >> $HOME/.bashrc
+echo 'function pwn(){'                          >> $HOME/.bashrc
+echo '    if [[ "${1}" == "" ]]; then'          >> $HOME/.bashrc
+echo '        fname=exploit.py'                 >> $HOME/.bashrc
+echo '    else'                                 >> $HOME/.bashrc
+echo '        fname="${1}"'                     >> $HOME/.bashrc
+echo '    fi'                                   >> $HOME/.bashrc
+echo '    if test -f "${fname}"; then'          >> $HOME/.bashrc
+echo '        echo "${fname} already exists."'  >> $HOME/.bashrc
+echo '        false'                            >> $HOME/.bashrc
+echo '    else'                                 >> $HOME/.bashrc
+echo '        touch "${fname}"'                 >> $HOME/.bashrc
+echo '        chmod +x "${fname}"'              >> $HOME/.bashrc
+echo '        cat > "${fname}"<<EOF'            >> $HOME/.bashrc
+echo '#!/usr/bin/env python2'                   >> $HOME/.bashrc
+echo '# -*- coding: utf-8 -*-'                  >> $HOME/.bashrc
+echo ''                                         >> $HOME/.bashrc
+echo 'from pwn import *'                        >> $HOME/.bashrc
+echo ''                                         >> $HOME/.bashrc
+echo 'context(arch = "i386", os = "linux")'     >> $HOME/.bashrc
+echo 'EOF'                                      >> $HOME/.bashrc
+echo '        ${EDITOR} "${fname}" +'           >> $HOME/.bashrc
+echo '    fi'                                   >> $HOME/.bashrc
+echo '}'                                        >> $HOME/.bashrc
+#Install RunShellcode
+git_clone https://github.com/RobertLarsen/RunShellcode.git
+cd $HOME/.repositories/RunShellcode
+sudo gcc -m32 -o /usr/bin/run_shellcode32 run_shellcode.c
+sudo gcc      -o /usr/bin/run_shellcode64 run_shellcode.c
+sudo gcc -o /usr/bin/wait_for_change /vagrant/scripts/wait_for_change.c
+echo vagrant:vagrant | sudo chpasswd
+POST=$(date +%s)
+echo "Installation took "$((POST-PRE))" seconds"
 EOF
 
 Vagrant.configure(2) do |config|
-    config.vm.box = "puphpet/ubuntu1404-x64"
-    config.vm.provision "shell", inline: $install
+    config.vm.box = "puppetlabs/ubuntu-14.04-64-puppet"
+    config.vm.provider "virtualbox" do |v|
+        v.memory = 1024
+    end
+    config.vm.provision "shell", inline: $install, privileged: false
+    #integer_conversion no aslr no canary
+    config.vm.network "forwarded_port", guest: 10001, host: 10001
+    #integer_overflow no aslr no canary
+    config.vm.network "forwarded_port", guest: 10002, host: 10002
+    #integer_conversion aslr no canary
+    config.vm.network "forwarded_port", guest: 10003, host: 10003
+    #integer_overflow aslr no canary
+    config.vm.network "forwarded_port", guest: 10004, host: 10004
+    #integer_conversion aslr and canary
+    config.vm.network "forwarded_port", guest: 10005, host: 10005
+    #integer_overflow aslr and canary
+    config.vm.network "forwarded_port", guest: 10006, host: 10006
+    #integer_conversion aslr, canary and pie
+    config.vm.network "forwarded_port", guest: 10007, host: 10007
+    #integer_overflow aslr, canary and pie
+    config.vm.network "forwarded_port", guest: 10008, host: 10008
+
+    #TreeTraverse shellcode challenge
+    config.vm.network "forwarded_port", guest: 9191, host: 9191
+
+    #Forward a couple of  ports for debugging and playing around
+    config.vm.network "forwarded_port", guest: 1337, host: 1337
+    config.vm.network "forwarded_port", guest: 9876, host: 9876
 end
