@@ -88,6 +88,11 @@ sudo pip3 install pycparser # Use pip3 for Python3
 echo "source ~/.repositories/pwndbg/gdbinit.py" >> /home/vagrant/.gdbinit
 cd ${MY_HOME}
 
+# Install qira
+git_clone https://github.com/BinaryAnalysisPlatform/qira.git
+cd qira
+./install.sh
+
 # Install Metasploit
 sudo gem2.2 install bundler
 git_clone https://github.com/rapid7/metasploit-framework.git
