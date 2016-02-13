@@ -75,15 +75,16 @@ git_clone https://github.com/zachriggle/peda.git
 echo '#source ~/.repositories/peda/peda.py' >> /home/vagrant/.gdbinit
 
 # Install pwndbg
-git clone https://github.com/zachriggle/pwndbg
-git clone https://github.com/aquynh/capstone
+git_clone https://github.com/zachriggle/pwndbg
+git_clone https://github.com/aquynh/capstone
 cd capstone
 git checkout -t origin/next
 sudo ./make.sh install
 cd bindings/python
 sudo python3 setup.py install # Ubuntu 14.04+, GDB uses Python3
 sudo pip3 install pycparser # Use pip3 for Python3
-echo "source $PWD/pwndbg/gdbinit.py" >> /home/vagrant/.gdbinit
+echo "source ~/.repositories/pwndbg/gdbinit.py" >> /home/vagrant/.gdbinit
+cd ${MY_HOME}
 
 # Install Metasploit
 sudo gem2.2 install bundler
