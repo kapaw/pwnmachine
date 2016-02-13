@@ -16,13 +16,13 @@ sudo apt-get install -y software-properties-common
 sudo apt-add-repository -y ppa:brightbox/ruby-ng
 sudo -E apt-get -y update
 sudo -E apt-get -y upgrade
-sudo -E apt-get -y install git python-pip python-dev build-essential    \
-    python-software-properties gdb curl vim exuberant-ctags pyflakes    \
-    cmake realpath tmux source-highlight libpq5 gcc-multilib libc6-i386 \
-    libc6-dev-i386 qemu-user-static libreadline-dev libssl-dev libpq-dev\
-    nmap libreadline5 ruby2.2 libsqlite3-dev libpcap-dev openjdk-7-jre  \
-    autoconf postgresql nasm pgadmin3 zlib1g-dev libxml2-dev            \
-    libxslt1-dev ruby2.2-dev screen
+sudo -E apt-get -y install git python-pip python3-pip python-dev        \
+    build-essential python-software-properties gdb gdb-multiarch curl   \
+    vim exuberant-ctags pyflakes cmake realpath tmux source-highlight   \
+    libpq5 gcc-multilib libc6-i386 libc6-dev-i386 qemu-user-static      \
+    libreadline-dev libssl-dev libpq-dev nmap libreadline5 ruby2.2      \
+    libsqlite3-dev libpcap-dev openjdk-7-jre autoconf postgresql nasm   \
+    pgadmin3 zlib1g-dev libxml2-dev libxslt1-dev ruby2.2-dev screen
 sudo update-alternatives --set ruby /usr/bin/ruby2.2
 
 # Init .repositories
