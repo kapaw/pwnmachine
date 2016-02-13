@@ -72,6 +72,14 @@ echo 'set disassembly-flavor intel'        >> /home/vagrant/.gdbinit
 echo 'set auto-load safe-path /'           >> /home/vagrant/.gdbinit
 echo 'set disable-randomization off'       >> /home/vagrant/.gdbinit
 
+# Install voltron
+sudo apt-get -y install libreadline6-dev python3-dev python3-setuptools python3-yaml
+git_clone https://github.com/snare/voltron.git
+cd $HOME/.repositories/voltron
+sudo python3 setup.py install
+echo "#source ~/.repositories/voltron/voltron/entry.py" >> /home/vagrant/.gdbinit
+echo "#voltron init"                                    >> /home/vagrant/.gdbinit
+
 # Install peda
 git_clone https://github.com/zachriggle/peda.git
 echo '#source ~/.repositories/peda/peda.py' >> /home/vagrant/.gdbinit
@@ -92,6 +100,33 @@ git_clone https://github.com/BinaryAnalysisPlatform/qira.git
 cd $HOME/.repositories/qira
 sed -i 's/sudo apt-get/sudo apt-get -y/g' tracers/qemu_build.sh
 ./install.sh
+
+# Install radare2
+git_clone https://github.com/radare/radare2
+cd $HOME/.repositories/radare2
+./sys/install.sh
+sudo pip install r2pipe
+
+# Install angr
+sudo apt-get -y install python-dev libffi-dev build-essential virtualenvwrapper
+sudo pip install angr --upgrade
+
+# Install AFL
+sudo apt-get -y install clang llvm
+cd $HOME/.repositories
+wget --quiet http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz
+tar -xvf afl-latest.tgz
+rm afl-latest.tgz
+(
+  cd afl-*
+  make
+  # build clang-fast
+  (
+    cd llvm_mode
+    make
+  )
+  sudo make install
+)
 
 # Install Metasploit
 sudo gem2.2 install bundler
@@ -115,7 +150,7 @@ echo ''                                         >> $HOME/.bashrc
 echo 'EOF'                                      >> $HOME/.bashrc
 echo '        chmod +x "${fname}"'              >> $HOME/.bashrc
 echo '    fi'                                   >> $HOME/.bashrc
-echo '        ${EDITOR} "${fname}" +'           >> $HOME/.bashrc
+echo '    ${EDITOR} "${fname}" +'               >> $HOME/.bashrc
 echo '}'                                        >> $HOME/.bashrc
 
 # Install RunShellcode
