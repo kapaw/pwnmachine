@@ -40,13 +40,13 @@ function git_clone(){
 }
 
 # Get workstation setup
-git_clone https://github.com/RobertLarsen/WorkstationSetup.git
+git_clone git://github.com/RobertLarsen/WorkstationSetup.git
 
 # Install Vim
 HOME=$MY_HOME USER=$MY_NAME bash .repositories/WorkstationSetup/vim.sh
 
 # Install pwntools + dependencies
-git_clone https://github.com/Gallopsled/pwntools.git ${MY_HOME}
+git_clone git://github.com/Gallopsled/pwntools.git ${MY_HOME}
 cd pwntools
 sed -i "s/\\['splitw'\\]/\\['splitw', '-h'\\]/" pwnlib/util/misc.py
 sudo pip2 install -r requirements.txt
@@ -74,19 +74,19 @@ echo 'set disable-randomization off'       >> /home/vagrant/.gdbinit
 
 # Install voltron
 sudo apt-get -y install libreadline6-dev python3-dev python3-setuptools python3-yaml
-git_clone https://github.com/snare/voltron.git
+git_clone git://github.com/snare/voltron.git
 cd $HOME/.repositories/voltron
 sudo python3 setup.py install
 echo "#source ~/.repositories/voltron/voltron/entry.py" >> /home/vagrant/.gdbinit
 echo "#voltron init"                                    >> /home/vagrant/.gdbinit
 
 # Install peda
-git_clone https://github.com/zachriggle/peda.git
+git_clone git://github.com/zachriggle/peda.git
 echo '#source ~/.repositories/peda/peda.py' >> /home/vagrant/.gdbinit
 
 # Install pwndbg
-git_clone https://github.com/zachriggle/pwndbg
-git_clone https://github.com/aquynh/capstone
+git_clone git://github.com/zachriggle/pwndbg
+git_clone git://github.com/aquynh/capstone
 cd $HOME/.repositories/capstone
 git checkout -t origin/next
 sudo ./make.sh install
@@ -96,13 +96,13 @@ sudo pip3 install pycparser # Use pip3 for Python3
 echo "source ~/.repositories/pwndbg/gdbinit.py" >> /home/vagrant/.gdbinit
 
 # Install qira
-git_clone https://github.com/BinaryAnalysisPlatform/qira.git
+git_clone git://github.com/BinaryAnalysisPlatform/qira.git
 cd $HOME/.repositories/qira
 sed -i 's/sudo apt-get/sudo apt-get -y/g' tracers/qemu_build.sh
 ./install.sh
 
 # Install radare2
-git_clone https://github.com/radare/radare2
+git_clone git://github.com/radare/radare2
 cd $HOME/.repositories/radare2
 ./sys/install.sh
 sudo pip install r2pipe
@@ -130,7 +130,7 @@ rm afl-latest.tgz
 
 # Install Metasploit
 sudo gem2.2 install bundler
-git_clone https://github.com/rapid7/metasploit-framework.git
+git_clone git://github.com/rapid7/metasploit-framework.git
 cd $HOME/.repositories/metasploit-framework
 bundle install
 sudo chmod -R a+r /var/lib/gems/2.2.0/gems
@@ -153,8 +153,17 @@ echo '    fi'                                   >> $HOME/.bashrc
 echo '    ${EDITOR} "${fname}" +'               >> $HOME/.bashrc
 echo '}'                                        >> $HOME/.bashrc
 
+# Update .screenrc
+cat > $HOME/.screenrc << SCREEN_END
+startup_message off
+vbell off
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%? %= %{g}][%{B} %m/%d %{W}%c %{g}]'
+defscrollback 50000
+SCREEN_END
+
 # Install RunShellcode
-git_clone https://github.com/RobertLarsen/RunShellcode.git
+git_clone git://github.com/RobertLarsen/RunShellcode.git
 cd $HOME/.repositories/RunShellcode
 sudo gcc -m32 -o /usr/bin/run_shellcode32 run_shellcode.c
 sudo gcc      -o /usr/bin/run_shellcode64 run_shellcode.c
