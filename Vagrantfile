@@ -172,4 +172,6 @@ Vagrant.configure(2) do |config|
     end
     config.vm.provision "shell", inline: $install, privileged: false
     config.vm.hostname = "pwnmachine"
+    # forward qira port
+    config.vm.network "forwarded_port", guest: 3002, host: 3002
 end
