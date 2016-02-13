@@ -48,7 +48,7 @@ HOME=$MY_HOME USER=$MY_NAME bash .repositories/WorkstationSetup/vim.sh
 # Install pwntools + dependencies
 git_clone https://github.com/Gallopsled/pwntools.git ${MY_HOME}
 cd pwntools
-sudo sed -i "s/\\['splitw'\\]/\\['splitw', '-h'\\]/" pwnlib/util/misc.py
+sed -i "s/\\['splitw'\\]/\\['splitw', '-h'\\]/" pwnlib/util/misc.py
 sudo pip2 install -r requirements.txt
 sudo python setup.py install
 cd ${MY_HOME}
@@ -79,18 +79,18 @@ echo '#source ~/.repositories/peda/peda.py' >> /home/vagrant/.gdbinit
 # Install pwndbg
 git_clone https://github.com/zachriggle/pwndbg
 git_clone https://github.com/aquynh/capstone
-cd capstone
+cd $HOME/.repositories/capstone
 git checkout -t origin/next
 sudo ./make.sh install
 cd bindings/python
 sudo python3 setup.py install # Ubuntu 14.04+, GDB uses Python3
 sudo pip3 install pycparser # Use pip3 for Python3
 echo "source ~/.repositories/pwndbg/gdbinit.py" >> /home/vagrant/.gdbinit
-cd ${MY_HOME}
 
 # Install qira
 git_clone https://github.com/BinaryAnalysisPlatform/qira.git
-cd qira
+cd $HOME/.repositories/qira
+sed -i 's/sudo apt-get/sudo apt-get -y/g' tracers/qemu_build.sh
 ./install.sh
 
 # Install Metasploit
