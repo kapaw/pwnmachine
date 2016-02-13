@@ -48,9 +48,7 @@ HOME=$MY_HOME USER=$MY_NAME bash .repositories/WorkstationSetup/vim.sh
 # Install pwntools + dependencies
 git_clone https://github.com/Gallopsled/pwntools.git ${MY_HOME}
 cd pwntools
-sudo sed -i 's/kernel.yama.ptrace_scope = 1/kernel.yama.ptrace_scope = 0/' /etc/sysctl.d/10-ptrace.conf
-sudo service procps restart
-sudo sed -i "s/\['splitw'\]/\['splitw', '-h'\]/" pwnlib/util/misc.py
+sudo sed -i "s/\\['splitw'\\]/\\['splitw', '-h'\\]/" pwnlib/util/misc.py
 sudo pip2 install -r requirements.txt
 sudo python setup.py install
 cd ${MY_HOME}
@@ -63,6 +61,10 @@ sudo apt-get install binutils-{arm,i386,mips}-linux-gnu
 # Enable core dumps
 ulimit -c 100000
 echo 'vagrant     soft      core      unlimited' | sudo tee /etc/security/limits.conf
+
+# ptrace_scope = 0
+sudo sed -i 's/kernel.yama.ptrace_scope = 1/kernel.yama.ptrace_scope = 0/' /etc/sysctl.d/10-ptrace.conf
+sudo service procps restart
 
 # Create .gdbinit
 echo 'set follow-fork-mode child'          >> /home/vagrant/.gdbinit
