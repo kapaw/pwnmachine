@@ -175,6 +175,7 @@ EOF
 
 Vagrant.configure(2) do |config|
     config.vm.box = "puppetlabs/ubuntu-14.04-64-puppet"
+    config.vm.box_check_update = false
     config.vm.provider "virtualbox" do |v|
         v.memory = 4096
         v.cpus = 2
