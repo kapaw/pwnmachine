@@ -81,13 +81,13 @@ echo "#voltron init"                                    >> /home/vagrant/.gdbini
 
 # Install peda
 git_clone https://github.com/zachriggle/peda.git
-echo '#source ~/.repositories/peda/peda.py' >> /home/vagrant/.gdbinit
+echo 'source ~/.repositories/peda/peda.py' >> /home/vagrant/.gdbinit
 
 # Install pwndbg
 git_clone https://github.com/zachriggle/pwndbg
 cd $HOME/.repositories/pwndbg
 sudo ./setup.sh
-echo "source ~/.repositories/pwndbg/gdbinit.py" >> /home/vagrant/.gdbinit
+echo "#source ~/.repositories/pwndbg/gdbinit.py" >> /home/vagrant/.gdbinit
 
 # Install qira
 git_clone https://github.com/BinaryAnalysisPlatform/qira.git
