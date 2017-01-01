@@ -131,43 +131,43 @@ sudo chmod -R a+r /var/lib/gems/2.2.0/gems
 echo 'export PATH=$PATH:$HOME/.repositories/metasploit-framework' >> $HOME/.bashrc
 
 # Update .bashrc
-echo "export EDITOR=vim"                                                                        >> $HOME/.bashrc
-echo "function pwn(){"                                                                          >> $HOME/.bashrc
-echo "    target_bin=\"\$1\""                                                                   >> $HOME/.bashrc
-echo "    fname='exploit.py'"                                                                   >> $HOME/.bashrc
-echo "    if [ ! -f \"\$fname\" ] ; then"                                                       >> $HOME/.bashrc
-echo "        cat > \"\${fname}\"<<EOF"                                                         >> $HOME/.bashrc
-echo "#!/usr/bin/env python"                                                                    >> $HOME/.bashrc
-echo "from pwn import *"                                                                        >> $HOME/.bashrc
-echo "context(arch = 'i386', os = 'linux')"                                                     >> $HOME/.bashrc
-echo "context.terminal = ['tmux', 'splitw', '-h']"                                              >> $HOME/.bashrc
-echo ""                                                                                         >> $HOME/.bashrc
-echo "TARGET_BIN = ''"                                                                          >> $HOME/.bashrc
-echo "HOST = '127.0.0.1'"                                                                       >> $HOME/.bashrc
-echo "PORT = 1337"                                                                              >> $HOME/.bashrc
-echo ""                                                                                         >> $HOME/.bashrc
-echo "x = None"                                                                                 >> $HOME/.bashrc
-echo "if 'REMOTE' in args:"                                                                     >> $HOME/.bashrc
-echo "     x = remote(HOST, PORT)"                                                              >> $HOME/.bashrc
-echo "else:"                                                                                    >> $HOME/.bashrc
-echo "    x = process(TARGET_BIN)"                                                              >> $HOME/.bashrc
-echo "    if 'GDB' in args:"                                                                    >> $HOME/.bashrc
-echo "        gdb.attach(x, '''"                                                                >> $HOME/.bashrc
-echo "        c"                                                                                >> $HOME/.bashrc
-echo "        ''')"                                                                             >> $HOME/.bashrc
-echo ""                                                                                         >> $HOME/.bashrc
-echo ""                                                                                         >> $HOME/.bashrc
-echo "EOF"                                                                                      >> $HOME/.bashrc
-echo "        sed -i \"s/\\(TARGET_BIN = '\\)\\('\\)/\\\1\$target_bin\\\2/\" \$fname"           >> $HOME/.bashrc
-echo "        chmod +x \"\${fname}\""                                                           >> $HOME/.bashrc
-echo "    fi"                                                                                   >> $HOME/.bashrc
-echo "    grep -q \"TARGET_BIN = ''\" \"\${fname}\""                                            >> $HOME/.bashrc
-echo "    if [ \"\$?\" -eq 0 ] ; then"                                                          >> $HOME/.bashrc
-echo "        \${EDITOR} -c 'startinsert' \"\${fname}\" '+call cursor(6,15)'"                   >> $HOME/.bashrc
-echo "    else"                                                                                 >> $HOME/.bashrc
-echo "        \${EDITOR} \"\${fname}\" +"                                                       >> $HOME/.bashrc
-echo "    fi"                                                                                   >> $HOME/.bashrc
-echo "}"                                                                                        >> $HOME/.bashrc
+echo "export EDITOR=vim"                                                              >> $HOME/.bashrc
+echo "function pwn(){"                                                                >> $HOME/.bashrc
+echo "    target_bin=\"\$1\""                                                         >> $HOME/.bashrc
+echo "    fname='exploit.py'"                                                         >> $HOME/.bashrc
+echo "    if [ ! -f \"\$fname\" ] ; then"                                             >> $HOME/.bashrc
+echo "        cat > \"\${fname}\"<<EOF"                                               >> $HOME/.bashrc
+echo "#!/usr/bin/env python"                                                          >> $HOME/.bashrc
+echo "from pwn import *"                                                              >> $HOME/.bashrc
+echo "context(arch = 'i386', os = 'linux')"                                           >> $HOME/.bashrc
+echo "context.terminal = ['tmux', 'splitw', '-h']"                                    >> $HOME/.bashrc
+echo ""                                                                               >> $HOME/.bashrc
+echo "TARGET_BIN = ''"                                                                >> $HOME/.bashrc
+echo "HOST = '127.0.0.1'"                                                             >> $HOME/.bashrc
+echo "PORT = 1337"                                                                    >> $HOME/.bashrc
+echo ""                                                                               >> $HOME/.bashrc
+echo "c = None"                                                                       >> $HOME/.bashrc
+echo "if 'REMOTE' in args:"                                                           >> $HOME/.bashrc
+echo "    c = remote(HOST, PORT)"                                                     >> $HOME/.bashrc
+echo "else:"                                                                          >> $HOME/.bashrc
+echo "    c = process(TARGET_BIN)"                                                    >> $HOME/.bashrc
+echo "    if 'GDB' in args:"                                                          >> $HOME/.bashrc
+echo "        gdb.attach(c, '''"                                                      >> $HOME/.bashrc
+echo "        c"                                                                      >> $HOME/.bashrc
+echo "        ''')"                                                                   >> $HOME/.bashrc
+echo ""                                                                               >> $HOME/.bashrc
+echo ""                                                                               >> $HOME/.bashrc
+echo "EOF"                                                                            >> $HOME/.bashrc
+echo "        sed -i \"s/\\(TARGET_BIN = '\\)\\('\\)/\\\1\$target_bin\\\2/\" \$fname" >> $HOME/.bashrc
+echo "        chmod +x \"\${fname}\""                                                 >> $HOME/.bashrc
+echo "    fi"                                                                         >> $HOME/.bashrc
+echo "    grep -q \"TARGET_BIN = ''\" \"\${fname}\""                                  >> $HOME/.bashrc
+echo "    if [ \"\$?\" -eq 0 ] ; then"                                                >> $HOME/.bashrc
+echo "        \${EDITOR} -c 'startinsert' \"\${fname}\" '+call cursor(6,15)'"         >> $HOME/.bashrc
+echo "    else"                                                                       >> $HOME/.bashrc
+echo "        \${EDITOR} \"\${fname}\" +"                                             >> $HOME/.bashrc
+echo "    fi"                                                                         >> $HOME/.bashrc
+echo "}"                                                                              >> $HOME/.bashrc
 
 # Update .screenrc
 cat > $HOME/.screenrc << SCREEN_END
