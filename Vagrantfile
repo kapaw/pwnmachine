@@ -71,7 +71,7 @@ echo "#voltron init"                                    >> /home/vagrant/.gdbini
 
 # Install gef
 git_clone https://github.com/hugsy/gef.git
-echo '#source ~/.repositories/.repositories/gef/gef.py' >> /home/vagrant/.gdbinit
+echo '#source ~/.repositories/gef/gef.py' >> /home/vagrant/.gdbinit
 
 # Install peda
 git_clone https://github.com/longld/peda
