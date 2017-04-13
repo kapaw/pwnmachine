@@ -176,12 +176,12 @@ echo ''                                                                         
 echo 'c = None'                                                                           >> ${MY_HOME}/.bashrc
 echo 'if "REMOTE" in args:'                                                               >> ${MY_HOME}/.bashrc
 echo '    c = remote(HOST, PORT)'                                                         >> ${MY_HOME}/.bashrc
-echo 'else:'                                                                              >> ${MY_HOME}/.bashrc
-echo '    c = process(TARGET_BIN)'                                                        >> ${MY_HOME}/.bashrc
-echo '    if "GDB" in args:'                                                              >> ${MY_HOME}/.bashrc
-echo '        gdb.attach(c, """'                                                          >> ${MY_HOME}/.bashrc
+echo 'elif "GDB" in args:'                                                                >> ${MY_HOME}/.bashrc
+echo '    c = gdb.debug(TARGET_BIN, """'                                                  >> ${MY_HOME}/.bashrc
 echo '        c'                                                                          >> ${MY_HOME}/.bashrc
 echo '        """)'                                                                       >> ${MY_HOME}/.bashrc
+echo 'else:'                                                                              >> ${MY_HOME}/.bashrc
+echo '    c = process(TARGET_BIN)'                                                        >> ${MY_HOME}/.bashrc
 echo ''                                                                                   >> ${MY_HOME}/.bashrc
 echo ''                                                                                   >> ${MY_HOME}/.bashrc
 echo 'EOF'                                                                                >> ${MY_HOME}/.bashrc
