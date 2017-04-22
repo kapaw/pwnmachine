@@ -22,7 +22,7 @@ sudo -E apt-get -y install git python-pip python3-pip python-dev        \
     libreadline-dev libtool debootstrap debian-archive-keyring          \
     libglib2.0-dev libpixman-1-dev libqt4-dev graphviz-dev              \
     nasm libc6:i386 libgcc1:i386 libstdc++6:i386 libtinfo5:i386         \
-    zlib1g:i386 virtualenvwrapper pandoc
+    zlib1g:i386 virtualenvwrapper pandoc libtool-bin
 sudo -E pip install pip --upgrade
 source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
 
