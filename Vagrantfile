@@ -109,7 +109,7 @@ cd ${MY_HOME}/.repositories/angr-dev
 sudo apt-get -y install virtualenvwrapper python3-pip python3-dev python3-setuptools build-essential libxml2-dev libxslt1-dev git libffi-dev cmake libreadline-dev libtool debootstrap debian-archive-keyring libglib2.0-dev libpixman-1-dev qtdeclarative5-dev binutils-multiarch nasm libssl-dev libc6:i386 libgcc1:i386 libstdc++6:i386 libtinfo5:i386 zlib1g:i386 openjdk-8-jdk
 source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
 mkvirtualenv angr
-sudo -E ./setup.sh
+./setup.sh
 deactivate
 
 # Install ropper
