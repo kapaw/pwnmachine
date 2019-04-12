@@ -176,7 +176,6 @@ echo '    if [ ! -f "$fname" ] ; then'                                          
 echo '        cat > "${fname}"<<EOF'                                                      >> ${MY_HOME}/.bashrc
 echo '#!/usr/bin/env python'                                                              >> ${MY_HOME}/.bashrc
 echo 'from pwn import *'                                                                  >> ${MY_HOME}/.bashrc
-echo 'context(arch="i386", os="linux")'                                                   >> ${MY_HOME}/.bashrc
 echo 'context.terminal = ["tmux", "splitw", "-h"]'                                        >> ${MY_HOME}/.bashrc
 echo ''                                                                                   >> ${MY_HOME}/.bashrc
 echo 'TARGET_BIN = ""'                                                                    >> ${MY_HOME}/.bashrc
@@ -201,7 +200,7 @@ echo '        chmod +x "${fname}"'                                              
 echo '    fi'                                                                             >> ${MY_HOME}/.bashrc
 echo '    grep -q "TARGET_BIN = \\"\\"" "${fname}"'                                       >> ${MY_HOME}/.bashrc
 echo '    if [ "$?" -eq 0 ] ; then'                                                       >> ${MY_HOME}/.bashrc
-echo '        ${EDITOR} -c "startinsert" "${fname}" "+call cursor(6,15)"'                 >> ${MY_HOME}/.bashrc
+echo '        ${EDITOR} -c "startinsert" "${fname}" "+call cursor(5,15)"'                 >> ${MY_HOME}/.bashrc
 echo '    else'                                                                           >> ${MY_HOME}/.bashrc
 echo '        ${EDITOR} "${fname}" +'                                                     >> ${MY_HOME}/.bashrc
 echo '    fi'                                                                             >> ${MY_HOME}/.bashrc
