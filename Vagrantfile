@@ -22,7 +22,7 @@ sudo -E apt-get -y install git python-pip python3-pip python-dev        \
     binutils-multiarch libxml2-dev libxslt1-dev git libffi-dev          \
     libreadline-dev libtool debootstrap debian-archive-keyring          \
     libglib2.0-dev libpixman-1-dev libqt4-dev graphviz-dev              \
-    nasm pandoc libtool-bin
+    nasm pandoc libtool-bin valgrind libfuzzer-7-dev
 sudo -E pip install pip --upgrade
 
 # Init .repositories
@@ -103,12 +103,9 @@ sudo make
 sudo make install
 
 # Install angr
-git_clone https://github.com/angr/angr-dev.git
-cd ${MY_HOME}/.repositories/angr-dev
-sudo apt-get -y install virtualenvwrapper python3-pip python3-dev python3-setuptools build-essential libxml2-dev libxslt1-dev git libffi-dev cmake libreadline-dev libtool debootstrap debian-archive-keyring libglib2.0-dev libpixman-1-dev qtdeclarative5-dev binutils-multiarch nasm libssl-dev libc6:i386 libgcc1:i386 libstdc++6:i386 libtinfo5:i386 zlib1g:i386 openjdk-8-jdk
 source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
-mkvirtualenv angr
-./setup.sh
+mkvirtualenv --python=$(which python3) angr
+pip install angr
 deactivate
 
 # Install ropper
@@ -120,7 +117,7 @@ sudo -E pip install filebytes==0.9.18
 sudo -E pip install keystone-engine
 sudo -E pip install . --upgrade
 
-# Install AFL
+# Install afl-fuzz
 sudo apt-get -y install clang-7
 cd ${MY_HOME}/.repositories
 wget --quiet http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz
@@ -153,10 +150,24 @@ rm afl-latest.tgz
   sudo make install
 )
 
+# Install hongfuzz
+git_clone https://github.com/google/honggfuzz.git
+sudo apt-get -y install libbfd-dev libunwind-dev
+make
+sudo make install
+
 # Install radamsa
 git_clone https://gitlab.com/akihe/radamsa.git
 sudo apt-get -y install gcc make git wget
 cd ${MY_HOME}/.repositories/radamsa
+make
+sudo make install
+
+# Install zzuf
+git_clone https://github.com/samhocevar/zzuf.git
+cd ${MY_HOME}/.repositories/zzuf
+./bootstrap
+./configure
 make
 sudo make install
 
