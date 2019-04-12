@@ -150,7 +150,7 @@ rm afl-latest.tgz
   sudo make install
 )
 
-# Install hongfuzz
+# Install honggfuzz
 git_clone https://github.com/google/honggfuzz.git
 sudo apt-get -y install libbfd-dev libunwind-dev
 make
