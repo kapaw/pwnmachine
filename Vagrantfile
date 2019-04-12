@@ -9,11 +9,12 @@ export DEBIAN_FRONTEND=noninteractive
 
 # Install packages
 sudo rm -rf /var/lib/apt/lists
+sudo dpkg --add-architecture i386
 sudo -E apt-get -y update
 sudo -E apt-get -y upgrade
 sudo -E apt-get -y install git python-pip python3-pip python-dev        \
-    build-essential python-software-properties gdb gdb-multiarch curl   \
-    vim exuberant-ctags pyflakes cmake realpath tmux source-highlight   \
+    build-essential software-properties-common gdb gdb-multiarch curl   \
+    vim exuberant-ctags pyflakes cmake tmux source-highlight            \
     libpq5 gcc-multilib libc6-i386 libc6-dev-i386 qemu-user-static      \
     libreadline-dev libssl-dev libpq-dev nmap libreadline5              \
     libsqlite3-dev libpcap-dev autoconf pgadmin3 zlib1g-dev libxml2-dev \
@@ -21,10 +22,8 @@ sudo -E apt-get -y install git python-pip python3-pip python-dev        \
     binutils-multiarch libxml2-dev libxslt1-dev git libffi-dev          \
     libreadline-dev libtool debootstrap debian-archive-keyring          \
     libglib2.0-dev libpixman-1-dev libqt4-dev graphviz-dev              \
-    nasm libc6:i386 libgcc1:i386 libstdc++6:i386 libtinfo5:i386         \
-    zlib1g:i386 virtualenvwrapper pandoc libtool-bin
+    nasm pandoc libtool-bin
 sudo -E pip install pip --upgrade
-source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
 
 # Init .repositories
 mkdir .repositories
@@ -39,13 +38,6 @@ function git_clone(){
         ln -s ${MY_HOME}/.repositories/"${base}" "${2}"/"${base}"
     fi
 }
-
-# Get workstation setup
-git_clone https://github.com/RobertLarsen/WorkstationSetup.git
-
-# Install Vim
-HOME=$MY_HOME USER=$MY_NAME bash .repositories/WorkstationSetup/vim.sh
-rm ${MY_HOME}/.vim/bundle/syntastic
 
 # Install pwntools + dependencies
 git_clone https://github.com/Gallopsled/pwntools.git ${MY_HOME}
@@ -90,12 +82,12 @@ git_clone https://github.com/pwndbg/pwndbg.git
 cd ${MY_HOME}/.repositories/pwndbg
 sudo ./setup.sh
 
-# Install qira
-git_clone https://github.com/BinaryAnalysisPlatform/qira.git
-cd ${MY_HOME}/.repositories/qira
-sed -i 's/sudo apt-get/sudo apt-get -y/g' tracers/qemu_build.sh
-sed -i 's/.*pypi.python.org\\/packages\\/source\\/p\\/pyparsing.*/pyparsing/g' requirements.txt 
-sudo ./install.sh
+## Install qira (BUG: ubuntu 18.04 qemu)
+#git_clone https://github.com/BinaryAnalysisPlatform/qira.git
+#cd ${MY_HOME}/.repositories/qira
+#sed -i 's/sudo apt-get/sudo apt-get -y/g' tracers/qemu_build.sh
+#sed -i 's/.*pypi.python.org\\/packages\\/source\\/p\\/pyparsing.*/pyparsing/g' requirements.txt
+#sudo ./install.sh
 
 # Install radare2
 git_clone https://github.com/radare/radare2
@@ -103,7 +95,7 @@ cd ${MY_HOME}/.repositories/radare2
 ./sys/user.sh
 sudo -E pip install r2pipe --upgrade
 
-## Install z3
+# Install z3
 git_clone https://github.com/Z3Prover/z3.git
 cd ${MY_HOME}/.repositories/z3
 sudo python scripts/mk_make.py --python
@@ -114,8 +106,10 @@ sudo make install
 # Install angr
 git_clone https://github.com/angr/angr-dev.git
 cd ${MY_HOME}/.repositories/angr-dev
+sudo apt-get -y install virtualenvwrapper python3-pip python3-dev python3-setuptools build-essential libxml2-dev libxslt1-dev git libffi-dev cmake libreadline-dev libtool debootstrap debian-archive-keyring libglib2.0-dev libpixman-1-dev qtdeclarative5-dev binutils-multiarch nasm libssl-dev libc6:i386 libgcc1:i386 libstdc++6:i386 libtinfo5:i386 zlib1g:i386 openjdk-8-jdk
+source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
 mkvirtualenv angr
-./setup.sh
+sudo -E ./setup.sh
 deactivate
 
 # Install ropper
@@ -123,10 +117,12 @@ git_clone https://github.com/sashs/ropper.git
 cd ${MY_HOME}/.repositories/ropper
 git submodule init
 git submodule update
+sudo -E pip install filebytes==0.9.18
+sudo -E pip install keystone-engine
 sudo -E pip install . --upgrade
 
 # Install AFL
-sudo apt-get -y install clang llvm
+sudo apt-get -y install clang-7
 cd ${MY_HOME}/.repositories
 wget --quiet http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz
 tar -xvf afl-latest.tgz
@@ -137,13 +133,14 @@ rm afl-latest.tgz
   # build clang-fast
   (
     cd llvm_mode
-    make
+    CC=clang-7 LLVM_CONFIG=llvm-config-7 make
   )
-  # build qemu mode
-  (
-    cd qemu_mode
-    ./build_qemu_support.sh
-  )
+  # build qemu mode (BUG: ubuntu 18.04 qemu)
+  #(
+  #  cd qemu_mode
+  #  sudo apt install -y bison flex
+  #  ./build_qemu_support.sh
+  #)
   # build libdislocator
   (
     cd libdislocator
@@ -156,6 +153,19 @@ rm afl-latest.tgz
   )
   sudo make install
 )
+
+# Install radamsa
+git_clone https://gitlab.com/akihe/radamsa.git
+sudo apt-get -y install gcc make git wget
+cd ${MY_HOME}/.repositories/radamsa
+make
+sudo make install
+
+# Install unicorn engine
+git_clone https://github.com/unicorn-engine/unicorn.git
+cd ${MY_HOME}/.repositories/unicorn
+make
+sudo make install
 
 # Update .bashrc
 echo 'export EDITOR=vim'                                                                  >> ${MY_HOME}/.bashrc
@@ -212,11 +222,11 @@ echo "Installation took "$((POST-PRE))" seconds"
 EOF
 
 Vagrant.configure(2) do |config|
-    config.vm.box = "puppetlabs/ubuntu-16.04-64-puppet"
+    config.vm.box = "ubuntu/bionic64"
     config.vm.box_check_update = false
     config.vm.provider "virtualbox" do |v|
         v.memory = 4096
-        v.cpus = 2
+        v.cpus = 4
     end
     config.vm.provision "shell", inline: $install, privileged: false
     config.vm.hostname = "pwnmachine"
