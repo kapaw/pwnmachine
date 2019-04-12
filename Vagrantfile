@@ -64,9 +64,8 @@ echo 'set disable-randomization off'       >> ${MY_HOME}/.gdbinit
 sudo apt-get -y install libreadline6-dev python3-dev python3-setuptools python3-yaml
 git_clone https://github.com/snare/voltron.git
 cd ${MY_HOME}/.repositories/voltron
-sudo -E python3 setup.py install
-echo "#source ~/.repositories/voltron/voltron/entry.py" >> ${MY_HOME}/.gdbinit
-echo "#voltron init"                                    >> ${MY_HOME}/.gdbinit
+./install.sh
+sed -i 's/\(.*voltron.*\)/#\1/' ${MY_HOME}/.gdbinit
 
 # Install gef
 git_clone https://github.com/hugsy/gef.git
