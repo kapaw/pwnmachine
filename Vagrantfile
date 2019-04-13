@@ -195,6 +195,17 @@ rm DynamoRIO-Linux-*.tar.gz
 ln -s DynamoRIO-Linux-* DynamoRIO
 echo "DYNAMORIO_HOME=${MY_HOME}/.repositories/DynamoRIO/" >> ${MY_HOME}/.bashrc
 
+## Install Triton (BUG: Triton only supports pin-2.14-71313. pin-2.14-71313 is not supported in Ubuntu 18.04)
+#sudo apt-get -y install libboost-dev
+#git_clone https://github.com/JonathanSalwan/Triton.git
+#cd Triton
+#mkdir build
+#cmake -DPINTOOL=on -DPIN_ROOT=$PIN_HOME ..
+#make -j 4
+#sudo make install
+#sudo ln -s `pwd`/triton /usr/bin/triton
+#sudo ln -s `pwd`/tritonAttach /usr/bin/tritonAttach
+
 # Add 'pwn' exploit template function to .bashrc
 echo 'export EDITOR=vim'                                                                  >> ${MY_HOME}/.bashrc
 echo 'function pwn(){'                                                                    >> ${MY_HOME}/.bashrc
