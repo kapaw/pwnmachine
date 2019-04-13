@@ -39,7 +39,7 @@ function git_clone(){
     fi
 }
 
-# Install pwntools + dependencies
+# Install pwntools
 git_clone https://github.com/Gallopsled/pwntools.git ${MY_HOME}
 cd pwntools
 sudo pip2 install -r requirements.txt
@@ -99,10 +99,11 @@ git_clone https://github.com/Z3Prover/z3.git
 cd ${MY_HOME}/.repositories/z3
 sudo python scripts/mk_make.py --python
 cd build
-sudo make
+make -j$(nproc)
 sudo make install
 
 # Install angr
+sudo apt-get -y install virtualenvwrapper
 source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
 mkvirtualenv --python=$(which python3) angr
 pip install angr
@@ -125,11 +126,11 @@ tar -xvf afl-latest.tgz
 rm afl-latest.tgz
 (
   cd afl-*
-  make
+  make -j$(nproc)
   # build clang-fast
   (
     cd llvm_mode
-    CC=clang-7 LLVM_CONFIG=llvm-config-7 make
+    CC=clang-7 LLVM_CONFIG=llvm-config-7 make -j$(nproc)
   )
   # build qemu mode (BUG: ubuntu 18.04 qemu)
   #(
@@ -140,12 +141,12 @@ rm afl-latest.tgz
   # build libdislocator
   (
     cd libdislocator
-    make
+    make -j$(nproc)
   )
   # build libtokencap
   (
     cd libtokencap
-    make
+    make -j$(nproc)
   )
   sudo make install
 )
@@ -154,14 +155,14 @@ rm afl-latest.tgz
 git_clone https://github.com/google/honggfuzz.git
 sudo apt-get -y install libbfd-dev libunwind-dev
 cd ${MY_HOME}/.repositories/honggfuzz
-make
+make -j$(nproc)
 sudo make install
 
 # Install radamsa
 git_clone https://gitlab.com/akihe/radamsa.git
 sudo apt-get -y install gcc make git wget
 cd ${MY_HOME}/.repositories/radamsa
-make
+make -j$(nproc)
 sudo make install
 
 # Install zzuf
@@ -169,13 +170,13 @@ git_clone https://github.com/samhocevar/zzuf.git
 cd ${MY_HOME}/.repositories/zzuf
 ./bootstrap
 ./configure
-make
+make -j$(nproc)
 sudo make install
 
 # Install unicorn engine
 git_clone https://github.com/unicorn-engine/unicorn.git
 cd ${MY_HOME}/.repositories/unicorn
-make
+make -j$(nproc)
 sudo make install
 
 # Install Intel Pin
