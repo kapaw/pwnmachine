@@ -65,7 +65,7 @@ sudo apt-get -y install libreadline6-dev python3-dev python3-setuptools python3-
 git_clone https://github.com/snare/voltron.git
 cd ${MY_HOME}/.repositories/voltron
 ./install.sh
-sed -i 's/\(.*voltron.*\)/#\1/' ${MY_HOME}/.gdbinit
+sed -i 's/\\(.*voltron.*\\)/#\\1/' ${MY_HOME}/.gdbinit
 
 # Install gef
 git_clone https://github.com/hugsy/gef.git
