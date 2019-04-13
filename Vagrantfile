@@ -99,7 +99,7 @@ git_clone https://github.com/Z3Prover/z3.git
 cd ${MY_HOME}/.repositories/z3
 sudo python scripts/mk_make.py --python
 cd build
-make -j$(nproc)
+sudo make -j$(nproc)
 sudo make install
 
 # Install angr
