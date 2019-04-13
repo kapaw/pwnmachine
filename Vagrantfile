@@ -178,7 +178,23 @@ cd ${MY_HOME}/.repositories/unicorn
 make
 sudo make install
 
-# Update .bashrc
+# Install Intel Pin
+cd ${MY_HOME}/.repositories/
+wget https://software.intel.com/sites/landingpage/pintool/downloads/pin-3.7-97619-g0d0c92f4f-gcc-linux.tar.gz
+tar xf pin-*.tar.gz
+rm pin-*.tar.gz
+ln -s pin-* pin
+echo "PIN_HOME=${MY_HOME}/.repositories/pin/" >> ${MY_HOME}/.bashrc
+
+# Install DynamoRIO
+cd ${MY_HOME}/.repositories/
+wget https://github.com/DynamoRIO/dynamorio/releases/download/release_7.1.0/DynamoRIO-Linux-7.1.0-1.tar.gz
+tar xf DynamoRIO-Linux-*.tar.gz
+rm DynamoRIO-Linux-*.tar.gz
+ln -s DynamoRIO-Linux-* DynamoRIO
+echo "DYNAMORIO_HOME=${MY_HOME}/.repositories/DynamoRIO/" >> ${MY_HOME}/.bashrc
+
+# Add 'pwn' exploit template function to .bashrc
 echo 'export EDITOR=vim'                                                                  >> ${MY_HOME}/.bashrc
 echo 'function pwn(){'                                                                    >> ${MY_HOME}/.bashrc
 echo '    target_bin="$1"'                                                                >> ${MY_HOME}/.bashrc
