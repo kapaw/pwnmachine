@@ -10,7 +10,3 @@ cd pwnmachine
 vagrant up
 vagrant ssh
 ```
-
-## Example
-
-[![asciicast](https://asciinema.org/a/B4JVUiGL5mnqyAb1NXKxaaoWl.svg)](https://asciinema.org/a/B4JVUiGL5mnqyAb1NXKxaaoWl)
